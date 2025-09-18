@@ -1,0 +1,8 @@
+services:
+  tfk-app:
+    build: .
+    volumes:
+      - .dockervenv:/srv/.venv
+      - .:/src
+    ports:
+      - 8000:8000
