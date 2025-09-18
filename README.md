@@ -13,6 +13,14 @@ TofuKnowledgeのバックエンド
   - feature/xxx
     - 機能分け
 
+## 技術スタック
+
+Docker
+FastAPI
+uvicorn
+sqlalchemy
+MySQL
+
 ## やること
 
 dockerやらねば
