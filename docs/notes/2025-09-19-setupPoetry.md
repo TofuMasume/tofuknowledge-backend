@@ -15,7 +15,7 @@ docker compose run --entrypoint "poetry init --name tfk-app --dependency fastapi
 - Install package
 
 ```shell
-docker compose  run --entrypoint "poetry install --no-root" tfk-app
+docker compose run --entrypoint "poetry install --no-root" tfk-app
 ```
 
 ## 参考
