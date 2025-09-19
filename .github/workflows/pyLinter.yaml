@@ -23,7 +23,7 @@ jobs:
               with:
                 python-version: "3.13"
 
-            - name: Format and Commit
+            - name: Lint
               uses: astral-sh/ruff-action@v3
               with:
                 args: "format --check --diff"
