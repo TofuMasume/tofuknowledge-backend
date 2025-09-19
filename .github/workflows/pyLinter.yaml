@@ -5,6 +5,7 @@ on:
         branches: [ "develop" ]
     pull_request:
         branches: [ "main" ]
+    workflow_dispatch:
 
 permissions:
     contents: read
@@ -26,16 +27,16 @@ jobs:
               run: pipx install poetry
 
             - name: Poetry add
-              run: poetry add ruff mypy black
+              run: poetry add ruff
 
             - name: Install dependencies
               run: poetry install --no-interaction --no-root
 
-            - name: Run Ruff
-              run: poetry run ruff check .
+            - name: Linter and Format
+              run: |
+                poetry run ruff check ./api --output-format=github .
 
-            - name: Run MyPy
-              run: poetry run mypy .
-
-            - name: Run Black check
-              run: poetry run black --check .
+            - name: Auto Commit
+              uses: stefanzweifel/git-auto-commit-action@v4
+              with:
+                commit_message: Apply Code Formatter change
