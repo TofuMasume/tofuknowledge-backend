@@ -35,7 +35,7 @@ jobs:
               run: poetry run ruff check .
 
             - name: Run MyPy
-              run: poetry run mypy
+              run: poetry run mypy .
 
             - name: Run Black check
               run: poetry run black --check .
