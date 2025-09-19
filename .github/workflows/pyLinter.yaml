@@ -11,7 +11,7 @@ on:
 jobs:
     lint:
         permissions:
-            contents: write
+            contents: read
         runs-on: ubuntu-latest
 
         steps:
@@ -32,11 +32,6 @@ jobs:
             - name: Install dependencies
               run: poetry install --no-interaction --no-root
 
-            - name: Linter and Format
+            - name: Lint
               run: |
                 poetry run ruff check ./api --output-format=github .
-
-            - name: Auto Commit
-              uses: stefanzweifel/git-auto-commit-action@v4
-              with:
-                commit_message: Apply Code Formatter change
