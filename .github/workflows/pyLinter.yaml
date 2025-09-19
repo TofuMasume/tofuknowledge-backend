@@ -7,11 +7,11 @@ on:
         branches: [ "main" ]
     workflow_dispatch:
 
-permissions:
-    contents: write
 
 jobs:
     lint:
+        permissions:
+            contents: write
         runs-on: ubuntu-latest
 
         steps:
