@@ -21,6 +21,12 @@ uvicorn
 sqlalchemy
 MySQL
 
+## ビルド
+
+```shell
+docker compose build --no-cache
+```
+
 ## やること
 
 dockerやらねば
