@@ -25,6 +25,9 @@ jobs:
             - name: Install Poetry
               run: pipx install poetry
 
+            - name: Poetry add
+              run: poetry add ruff mypy black
+
             - name: Install dependencies
               run: poetry install --no-interaction --no-root
 
