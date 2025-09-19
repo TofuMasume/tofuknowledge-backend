@@ -1,0 +1,7 @@
+{
+    "ignoreWords": [
+        "Masume",
+        "fastapi",
+        "uvicorn"
+    ]
+}
