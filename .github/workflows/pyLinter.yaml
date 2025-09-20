@@ -23,15 +23,7 @@ jobs:
               with:
                 python-version: "3.13"
 
-            - name: Install Poetry
-              run: pipx install poetry
-
-            - name: Poetry add
-              run: poetry add ruff
-
-            - name: Install dependencies
-              run: poetry install --no-interaction --no-root
-
             - name: Lint
-              run: |
-                poetry run ruff check ./api --output-format=github .
+              uses: astral-sh/ruff-action@v3
+              with:
+                args: "format --check --diff --output-format=github ."
