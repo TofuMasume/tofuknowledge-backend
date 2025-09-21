@@ -9,5 +9,9 @@
         }
     },
     "isort.args": ["--profile", "black"],
-    "black-formatter.args": ["--line-length", "79"],
+    "black-formatter.args": [
+        "--line-length",
+        "79"
+    ],
+    "indentRainbow.indicatorStyle": "light",
 }
