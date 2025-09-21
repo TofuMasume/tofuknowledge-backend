@@ -1,13 +1,21 @@
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
 class Article(BaseModel):
+    title: str = Field(examples=["typing"])
+    summary: Optional[str] = Field(examples=["typingの説明"])
     id: int
     user_id: int
     path: str
     created_at: datetime
     updated_at: datetime
-    summary: Optional[str] = Field(None, examples=["typingの説明"])
+
+
+class ArticleCreate(BaseModel):
+    title: str = Field(examples=["typing"])
+    summary: Optional[str] = Field(examples=["typingの説明"])
+    id: int
+    user_id: int
