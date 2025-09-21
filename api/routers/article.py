@@ -1,4 +1,9 @@
+from datetime import datetime
+from typing import List
+
 from fastapi import APIRouter
+
+import api.schemas.article as article_schema
 
 router = APIRouter()
 
@@ -10,11 +15,21 @@ async def list_articles():
     pass
 
 
-@router.get("/articles/{article_id}")
+@router.get(
+        "/articles/{article_id}",
+        response_model=List[article_schema.Article]
+        )
 async def get_article_details():
     """article_idの記事詳細取得
     """
-    pass
+    return [article_schema.Article(
+        id=1,
+        user_id=1,
+        path="/hoge/fuga/",
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+        summary="test article"
+        )]
 
 
 @router.post("/articles")
