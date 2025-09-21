@@ -2,6 +2,9 @@
     "ignoreWords": [
         "Masume",
         "fastapi",
-        "uvicorn"
+        "uvicorn",
+        "hoge",
+        "fuga",
+        "piyo"
     ]
 }
