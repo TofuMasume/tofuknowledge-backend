@@ -1,29 +1,38 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+# GET用 schema
 
 
-class Article(BaseModel):
+class ArticleSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     title: str = Field(examples=["typing"])
     summary: Optional[str] = Field(examples=["typingの説明"])
-    id: int
+    article_id: int
     user_id: int
+
+
+class ArticleDetail(ArticleSummary):
     path: str
     created_at: datetime
     updated_at: datetime
 
 
+# POST schema
+
+
 class ArticleCreate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     title: str = Field(examples=["typing"])
     summary: Optional[str] = Field(examples=["typingの説明"])
     user_id: int
 
-    class Config:
-        orm_mode = True
-
 
 class ArticleCreateResponse(ArticleCreate):
-    id: int
+    article_id: int
     path: str
     created_at: datetime

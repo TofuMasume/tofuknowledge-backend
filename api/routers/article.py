@@ -15,15 +15,15 @@ async def list_articles():
 
 
 @router.get(
-    "/articles/{article_id}", response_model=List[article_schema.Article]
+    "/articles/{article_id}", response_model=List[article_schema.ArticleDetail]
 )
 async def get_article_details():
     """article_idの記事詳細取得"""
     return [
-        article_schema.Article(
+        article_schema.ArticleDetail(
             title="test",
             summary="test article",
-            id=1,
+            article_id=1,
             user_id=1,
             path="/hoge/fuga/",
             created_at=datetime.now(),
