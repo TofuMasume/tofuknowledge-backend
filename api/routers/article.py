@@ -8,31 +8,34 @@ import api.schemas.article as article_schema
 router = APIRouter()
 
 
-@router.get("/articles")
+@router.get("/articles", response_model=List[article_schema.ArticleSummary])
 async def list_articles():
     """記事一覧/基本情報取得"""
-    pass
-
-
-@router.get(
-    "/articles/{article_id}", response_model=List[article_schema.ArticleDetail]
-)
-async def get_article_details():
-    """article_idの記事詳細取得"""
     return [
-        article_schema.ArticleDetail(
-            title="test",
-            summary="test article",
-            article_id=1,
-            user_id=1,
-            path="/hoge/fuga/",
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        )
+        article_schema.ArticleSummary(
+            title="article 0", article_id=0, user_id=0
+        ),
+        article_schema.ArticleSummary(
+            title="article 1", article_id=1, user_id=1
+        ),
     ]
 
 
-@router.post("/articles")
+@router.get(
+    "/articles/{article_id}", response_model=article_schema.ArticleDetail
+)
+async def get_article_details():
+    """article_idの記事詳細取得"""
+    return article_schema.ArticleDetail(
+        title="test article",
+        article_id=1,
+        user_id=1,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+
+
+@router.post("/articles", response_model=List)
 async def post_article():
     """新規記事投稿
     markdown
