@@ -5,6 +5,7 @@
         "uvicorn",
         "hoge",
         "fuga",
-        "piyo"
+        "piyo",
+        "pytest"
     ]
 }
