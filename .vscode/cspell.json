@@ -6,6 +6,13 @@
         "hoge",
         "fuga",
         "piyo",
-        "pytest"
+        "pytest",
+        "trixie",
+        "PYTHONBUFFERD"
+    ],
+    "words": [
+        "pyproject",
+        "PYTHONUNBUFFERED",
+        "virtualenvs"
     ]
 }
