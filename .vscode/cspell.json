@@ -11,8 +11,11 @@
         "PYTHONBUFFERD"
     ],
     "words": [
+        "dockervenv",
         "pyproject",
         "PYTHONUNBUFFERED",
+        "sqlalchemy",
+        "venv",
         "virtualenvs"
     ]
 }

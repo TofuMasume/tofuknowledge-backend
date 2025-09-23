@@ -6,3 +6,16 @@ services:
       - .:/src
     ports:
       - 8000:8000
+  tfk-db:
+    image: mysql:9.4.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: tfk-db
+      TZ: Asia/Tokyo
+    volumes:
+      - ./.db/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+volumes:
+  mysql_data:
