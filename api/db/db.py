@@ -1,7 +1,17 @@
+import os
+
+from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-ASYNC_DB_URL = "mysql+aiomysql://root@db:3306/tfk-db?charset=utf8"
+# TODO: 一時的に環境変数使ってるが、この後変える
+load_dotenv()
+
+# TODO: rootで入ってて権限強すぎるので、この後権限変更する。
+MYSQL_ROOT_PASSWORD = os.environ["MYSQL_ROOT_PASSWORD"]
+ASYNC_DB_URL = (
+    f"mysql+aiomysql:{MYSQL_ROOT_PASSWORD}//root:@db:3306/tfk-db?charset=utf8"
+)
 
 async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
 async_session = sessionmaker(
