@@ -8,10 +8,8 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 load_dotenv()
 
 # TODO: rootで入ってて権限強すぎるので、この後権限変更する。
-MYSQL_ROOT_PASSWORD = os.environ["MYSQL_ROOT_PASSWORD"]
-ASYNC_DB_URL = (
-    f"mysql+aiomysql:{MYSQL_ROOT_PASSWORD}//root:@db:3306/tfk-db?charset=utf8"
-)
+PWD = os.environ["MYSQL_ROOT_PASSWORD"]
+ASYNC_DB_URL = f"mysql+aiomysql:{PWD}//root:@db:3306/tfk-db?charset=utf8"
 
 async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
 async_session = sessionmaker(
