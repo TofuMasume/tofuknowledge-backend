@@ -13,10 +13,10 @@ async def list_articles():
     """記事一覧/基本情報取得"""
     return [
         article_schema.ArticleSummary(
-            title="article 0", article_id=0, user_id=0
+            title="article 0", article_id=0, author_id=0
         ),
         article_schema.ArticleSummary(
-            title="article 1", article_id=1, user_id=1
+            title="article 1", article_id=1, author_id=1
         ),
     ]
 
@@ -29,7 +29,7 @@ async def get_article_details():
     return article_schema.ArticleDetail(
         title="test article",
         article_id=1,
-        user_id=1,
+        author_id=1,
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )

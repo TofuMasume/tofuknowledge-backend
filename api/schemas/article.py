@@ -17,7 +17,7 @@ class ArticleSummary(BaseModel):
 
     title: str = Field(examples=["typing"])
     article_id: int
-    user_id: int
+    author_id: int
 
 
 class ArticleDetail(ArticleSummary):
@@ -37,7 +37,7 @@ class ArticleCreate(BaseModel):
 
     title: str = Field(examples=["typing"])
     summary: Optional[str] = Field(examples=["typingの説明"])
-    user_id: int
+    author_id: int
 
 
 class ArticleCreateResponse(ArticleCreate):
