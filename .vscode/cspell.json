@@ -15,6 +15,7 @@
         "pyproject",
         "PYTHONUNBUFFERED",
         "sqlalchemy",
+        "tofuknowledge",
         "venv",
         "virtualenvs"
     ]
