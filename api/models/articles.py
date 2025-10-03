@@ -9,7 +9,7 @@ class Article(Base):
 
     article_id = Column(Integer, primary_key=True)
     author_id = Column(Integer, ForeignKey("users.user_id"))
-    path = Column(String, nullable=False)
+    path = Column(String(511), nullable=False)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
     summary = Column(Text)

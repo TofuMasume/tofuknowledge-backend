@@ -1,21 +1,26 @@
 {
-    "ignoreWords": [
-        "Masume",
-        "fastapi",
-        "uvicorn",
-        "hoge",
-        "fuga",
-        "piyo",
-        "pytest",
-        "trixie",
-        "PYTHONBUFFERD"
-    ],
     "words": [
+        "aiomysql",
+        "autoflush",
         "dockervenv",
+        "dotenv",
+        "fastapi",
+        "fuga",
+        "hoge",
+        "Masume",
+        "ondelete",
+        "piyo",
+        "poolclass",
+        "pymysql",
         "pyproject",
+        "pytest",
+        "PYTHONBUFFERD",
         "PYTHONUNBUFFERED",
+        "sessionmaker",
         "sqlalchemy",
         "tofuknowledge",
+        "trixie",
+        "uvicorn",
         "venv",
         "virtualenvs"
     ]

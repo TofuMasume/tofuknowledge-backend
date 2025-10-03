@@ -13,9 +13,10 @@ services:
       MYSQL_DATABASE: tfk-db
       TZ: Asia/Tokyo
     volumes:
-      - ./.db/mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     ports:
       - 3306:3306
+
 
 volumes:
   mysql_data:

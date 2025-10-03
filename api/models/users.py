@@ -9,7 +9,7 @@ class User(Base):
 
     user_id = Column(Integer, primary_key=True)
     user_name = Column(String(32))
-    email = Column(String)
+    email = Column(String(255))
     created_at = Column(DateTime)
 
     articles = relationship("Article", back_populates="author")

@@ -9,7 +9,7 @@ load_dotenv()
 
 # TODO: rootで入ってて権限強すぎるので、この後権限変更する。
 PWD = os.environ["MYSQL_ROOT_PASSWORD"]
-ASYNC_DB_URL = f"mysql+aiomysql:{PWD}//root:@db:3306/tfk-db?charset=utf8"
+ASYNC_DB_URL = f"mysql+aiomysql://root:{PWD}@tfk-db:3306/tfk-db?charset=utf8"
 
 async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
 async_session = sessionmaker(
