@@ -43,5 +43,6 @@ class ArticleCreate(BaseModel):
 class ArticleCreateResponse(ArticleCreate):
     """article作成後のレスポンス"""
 
+    title: str = Field(examples=["typing"])
     article_id: int
     created_at: datetime

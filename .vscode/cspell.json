@@ -1,12 +1,16 @@
 {
     "words": [
         "aiomysql",
+        "aiosqlite",
+        "ASGI",
+        "asyncio",
         "autoflush",
         "dockervenv",
         "dotenv",
         "fastapi",
         "fuga",
         "hoge",
+        "httpx",
         "Masume",
         "ondelete",
         "piyo",
