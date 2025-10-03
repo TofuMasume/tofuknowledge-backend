@@ -15,6 +15,7 @@
         "ondelete",
         "piyo",
         "poolclass",
+        "powai",
         "pymysql",
         "pyproject",
         "pytest",

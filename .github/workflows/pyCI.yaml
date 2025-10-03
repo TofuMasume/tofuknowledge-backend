@@ -34,4 +34,6 @@ jobs:
           poetry add pytest-github-actions-annotate-failures
           poetry install --no-root
       - name: Run pytest
+        env:
+          MYSQL_ROOT_PASSWORD: powai
         run: poetry run pytest
