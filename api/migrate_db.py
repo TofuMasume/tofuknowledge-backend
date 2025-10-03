@@ -1,11 +1,11 @@
 import os
 
 from dotenv import load_dotenv
+from importlib import import_module
+
 from sqlalchemy import create_engine
 
 from api.db.db import Base
-# Import models so their tables are registered on Base.metadata
-from api.models import articles, users
 
 # TODO: 一時的に環境変数使ってるが、この後変える
 load_dotenv()
@@ -18,6 +18,8 @@ engine = create_engine(DB_URL, echo=True)
 
 
 def reset_database():
+    import_module("api.models.users")
+    import_module("api.models.articles")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
