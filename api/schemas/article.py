@@ -17,6 +17,8 @@ class ArticleSummary(BaseModel):
     title: str = Field(examples=["typing"])
     article_id: int
     author_id: int
+    created_at: datetime
+    updated_at: datetime
 
 
 class ArticleDetail(ArticleSummary):
@@ -72,3 +74,14 @@ class ArticleDelete(BaseModel):
 
 class ArticleDeleteResponse(ArticleDelete):
     deleted_at: datetime
+
+
+class ArticleFileUploadResponse(BaseModel):
+    """articleのファイルアップロード後のレスポンス"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    article_id: int = Field(examples=[1])
+    filename: str = Field(examples=["1.md"])
+    content_type: str = Field(examples=["text/markdown"])
+    uploaded_at: datetime

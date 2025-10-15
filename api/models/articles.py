@@ -13,6 +13,6 @@ class Article(Base):
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
     deleted_at = Column(DateTime, nullable=False)
-    summary = Column(Text)
+    summary = Column(Text, nullable=True)
 
     author = relationship("User", back_populates="articles")

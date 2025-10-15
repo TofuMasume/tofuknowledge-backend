@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 import pytest_asyncio
 import starlette.status
@@ -37,7 +39,9 @@ async def async_client() -> AsyncClient:
 
     # return HTTP Async client for test
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
+    async with AsyncClient(
+        transport=transport, base_url="http://test"
+    ) as client:
         yield client
 
 
@@ -51,18 +55,48 @@ async def test_article_create_and_read(async_client):
         "/articles",
         json={
             "title": "テスト記事",
-            "summery": "テストサマリー",
-            "author_id": "テスト著者",
+            "summary": "テストサマリー",
+            "author_id": 1,
         },
     )
     assert response.status_code == starlette.status.HTTP_200_OK
     response_obj = response.json()
     assert response_obj["title"] == "テスト記事"
     article_id = response_obj["article_id"]
-    # 記事取得
-    response = await async_client.get("/articles")
+    # 記事詳細取得
+    response = await async_client.get(f"/articles/{article_id}")
     assert response.status_code == starlette.status.HTTP_200_OK
     response_obj = response.json()
-    assert len(response_obj) == 1
-    assert response_obj[0]["title"] == "テスト記事"
-    assert response_obj[0]["article_id"] == article_id
+    assert response_obj["article_id"] == article_id
+    assert response_obj["title"].startswith("article")
+
+
+@pytest.mark.asyncio
+async def test_article_file_upload_and_download(async_client):
+    # ファイルアップロード
+    upload_bytes = b"# test article"
+    files = {
+        "file": ("sample.md", upload_bytes, "text/markdown"),
+    }
+    response = await async_client.post("/articles/101/file", files=files)
+    assert response.status_code == starlette.status.HTTP_201_CREATED
+    upload_obj = response.json()
+    assert upload_obj["article_id"] == 101
+    assert upload_obj["filename"].endswith(".md")
+
+    # ファイルダウンロード
+    response = await async_client.get("/articles/101/file")
+    assert response.status_code == starlette.status.HTTP_200_OK
+    assert response.content == upload_bytes
+    content_disposition = response.headers["content-disposition"]
+    assert (
+        f'filename="{upload_obj["filename"]}"' in content_disposition
+    )
+
+    # 片付け
+    storage_dir = Path(__file__).resolve().parents[1] / "storage" / "articles"
+    stored_file = storage_dir / upload_obj["filename"]
+    if stored_file.exists():
+        stored_file.unlink()
+    if storage_dir.exists() and not any(storage_dir.iterdir()):
+        storage_dir.rmdir()
