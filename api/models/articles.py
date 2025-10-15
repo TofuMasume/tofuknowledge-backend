@@ -12,6 +12,7 @@ class Article(Base):
     path = Column(String(511), nullable=False)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
+    deleted_at = Column(DateTime, nullable=False)
     summary = Column(Text)
 
     author = relationship("User", back_populates="articles")

@@ -24,35 +24,45 @@ async def list_articles():
 @router.get(
     "/articles/{article_id}", response_model=article_schema.ArticleDetail
 )
-async def get_article_details():
+async def get_article_details(article_id: int):
     """article_idの記事詳細取得"""
     return article_schema.ArticleDetail(
         title="test article",
-        article_id=1,
+        article_id=article_id,
         author_id=1,
         created_at=datetime.now(),
         updated_at=datetime.now(),
     )
 
 
-@router.post("/articles", response_model=List)
-async def post_article():
+@router.post("/articles", response_model=article_schema.ArticleCreateResponse)
+async def post_article(article_body: article_schema.ArticleCreate):
     """新規記事投稿
     markdown
     """
-    pass
+    return article_schema.ArticleCreateResponse(
+        article_id=1,
+        created_at=datetime.now(),
+        **article_body.dict(),
+    )
 
 
-@router.put("/articles/{article_id}")
-async def edit_article():
+@router.put(
+    "/articles/{article_id}", response_model=article_schema.ArticleUpdate
+)
+async def edit_article(article_id: int):
     """記事編集"""
-    pass
+    return article_schema.ArticleUpdateResponse(
+        updated_at=datetime.now(), article_id=article_id, author_id=1
+    )
 
 
-@router.delete("/articles/{article_id}")
-async def delete_article():
+@router.delete(
+    "/articles/{article_id}", response_model=article_schema.ArticleDelete
+)
+async def delete_article(article_id: int):
     """記事削除"""
-    pass
+    return article_schema.ArticleDelete(article_id=datetime)
 
 
 @router.get("/articles/{article_id}/tags", tags=["tags"])
