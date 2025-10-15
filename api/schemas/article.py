@@ -26,6 +26,7 @@ class ArticleDetail(ArticleSummary):
 
     created_at: datetime
     updated_at: datetime
+    summary: Optional[str] = Field(default=None, examples=["typingの説明"])
 
 
 # POST schema
@@ -55,6 +56,8 @@ class ArticleUpdate(BaseModel):
 
     article_id: int = Field(examples=[1])
     author_id: int = Field(examples=[1])
+    title: Optional[str] = Field(default=None, examples=["typing"])
+    summary: Optional[str] = Field(default=None, examples=["typingの説明"])
 
 
 class ArticleUpdateResponse(ArticleUpdate):

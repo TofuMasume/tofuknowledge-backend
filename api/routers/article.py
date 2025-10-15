@@ -1,11 +1,22 @@
 import mimetypes
-from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, responses, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    UploadFile,
+    responses,
+    status,
+)
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.schemas.article as article_schema
+from api.cruds import article as article_crud
+from api.db.db import get_db
+from api.models.articles import Article
 
 router = APIRouter()
 ARTICLE_STORAGE_DIR = (
@@ -26,70 +37,131 @@ def _find_article_file(article_id: int) -> Optional[Path]:
     return None
 
 
+def _article_to_summary(article: Article) -> article_schema.ArticleSummary:
+    return article_schema.ArticleSummary(
+        title=article.path,
+        article_id=article.article_id,
+        author_id=article.author_id,
+        created_at=article.created_at,
+        updated_at=article.updated_at,
+    )
+
+
+def _article_to_detail(article: Article) -> article_schema.ArticleDetail:
+    return article_schema.ArticleDetail(
+        title=article.path,
+        article_id=article.article_id,
+        author_id=article.author_id,
+        created_at=article.created_at,
+        updated_at=article.updated_at,
+        summary=article.summary,
+    )
+
+
+def _article_to_create_response(
+    article: Article,
+) -> article_schema.ArticleCreateResponse:
+    return article_schema.ArticleCreateResponse(
+        title=article.path,
+        summary=article.summary,
+        author_id=article.author_id,
+        article_id=article.article_id,
+        created_at=article.created_at,
+    )
+
+
+def _article_to_update_response(
+    article: Article,
+) -> article_schema.ArticleUpdateResponse:
+    return article_schema.ArticleUpdateResponse(
+        article_id=article.article_id,
+        author_id=article.author_id,
+        title=article.path,
+        summary=article.summary,
+        updated_at=article.updated_at,
+    )
+
+
 @router.get("/articles", response_model=List[article_schema.ArticleSummary])
-async def list_articles():
+async def list_articles(db: AsyncSession = Depends(get_db)):
     """記事一覧取得"""
-    return [
-        article_schema.ArticleSummary(
-            title="article 0",
-            article_id=0,
-            author_id=0,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        ),
-        article_schema.ArticleSummary(
-            title="article 1",
-            article_id=1,
-            author_id=1,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        ),
-    ]
+    articles = await article_crud.list_articles(db)
+    return [_article_to_summary(article) for article in articles]
 
 
 @router.get(
     "/articles/{article_id}", response_model=article_schema.ArticleDetail
 )
-async def get_article_details(article_id: int):
+async def get_article_details(
+    article_id: int, db: AsyncSession = Depends(get_db)
+):
     """article_idの記事を取得"""
-    now = datetime.now()
-    return article_schema.ArticleDetail(
-        title=f"article {article_id}",
-        article_id=article_id,
-        author_id=article_id,
-        created_at=now,
-        updated_at=now,
-    )
+    article = await article_crud.get_article(db, article_id)
+    if article is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事が見つかりません。",
+        )
+    return _article_to_detail(article)
 
 
-@router.post("/articles", response_model=article_schema.ArticleCreateResponse)
-async def post_article(article_body: article_schema.ArticleCreate):
-    """新規記事投稿
-    markdown
-    """
-    return article_schema.ArticleCreateResponse(
-        article_id=1,
-        created_at=datetime.now(),
-        **article_body.model_dump(),
-    )
+@router.post(
+    "/articles",
+    response_model=article_schema.ArticleCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_article(
+    article_body: article_schema.ArticleCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    """新規記事投稿"""
+    article = await article_crud.create_article(db, article_body)
+    return _article_to_create_response(article)
 
 
 @router.put(
-    "/articles/{article_id}", response_model=article_schema.ArticleUpdate
+    "/articles/{article_id}",
+    response_model=article_schema.ArticleUpdateResponse,
 )
-async def edit_article(article_id: int):
+async def edit_article(
+    article_id: int,
+    article_body: article_schema.ArticleUpdate,
+    db: AsyncSession = Depends(get_db),
+):
     """記事編集"""
-    return article_schema.ArticleUpdateResponse(
-        updated_at=datetime.now(), article_id=article_id, author_id=1
-    )
+    if article_body.article_id != article_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="パスと本文のarticle_idが一致しません。",
+        )
+
+    article = await article_crud.update_article(db, article_id, article_body)
+    if article is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事が見つかりません。",
+        )
+    return _article_to_update_response(article)
 
 
 @router.delete(
-    "/articles/{article_id}", response_model=article_schema.ArticleDelete
+    "/articles/{article_id}",
+    response_model=article_schema.ArticleDeleteResponse,
 )
-async def delete_article(article_id: int):
+async def delete_article(
+    article_id: int, db: AsyncSession = Depends(get_db)
+):
     """記事削除"""
-    return article_schema.ArticleDelete(article_id=article_id)
+    article = await article_crud.delete_article(db, article_id)
+    if article is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事が見つかりません。",
+        )
+    return article_schema.ArticleDeleteResponse(
+        article_id=article.article_id,
+        deleted_at=article.deleted_at,
+    )
 
 
 @router.post(
@@ -98,9 +170,18 @@ async def delete_article(article_id: int):
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_article_file(
-    article_id: int, file: UploadFile = File(...)
+    article_id: int,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
 ):
     """記事ファイルのアップロード"""
+    article = await article_crud.get_article(db, article_id)
+    if article is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事が見つかりません。",
+        )
+
     if not file.filename:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -137,7 +218,8 @@ async def upload_article_file(
         content_type or mimetypes.guess_type(destination.name)[0] or
         "application/octet-stream"
     )
-    uploaded_at = datetime.now()
+    updated_article = await article_crud.touch_article(db, article)
+    uploaded_at = updated_article.updated_at
     return article_schema.ArticleFileUploadResponse(
         article_id=article_id,
         filename=destination.name,
@@ -147,8 +229,17 @@ async def upload_article_file(
 
 
 @router.get("/articles/{article_id}/file")
-async def download_article_file(article_id: int):
+async def download_article_file(
+    article_id: int, db: AsyncSession = Depends(get_db)
+):
     """記事ファイルのダウンロード"""
+    article = await article_crud.get_article(db, article_id)
+    if article is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事が見つかりません。",
+        )
+
     article_file = _find_article_file(article_id)
     if article_file is None:
         raise HTTPException(
