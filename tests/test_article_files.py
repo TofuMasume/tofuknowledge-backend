@@ -6,13 +6,23 @@ import starlette.status
 
 @pytest.mark.asyncio
 async def test_article_file_upload_and_download(async_client):
+    user_response = await async_client.post(
+        "/users",
+        json={
+            "user_name": "ファイル著者",
+            "email": "file-author@example.com",
+        },
+    )
+    assert user_response.status_code == starlette.status.HTTP_201_CREATED
+    user_id = user_response.json()["user_id"]
+
     # アップロード対象記事を作成
     create_response = await async_client.post(
         "/articles",
         json={
             "title": "ファイル記事",
             "summary": None,
-            "author_id": 1,
+            "author_id": user_id,
         },
     )
     assert create_response.status_code == starlette.status.HTTP_201_CREATED

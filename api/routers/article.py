@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.schemas.article as article_schema
 from api.cruds import article as article_crud
+from api.cruds import user as user_crud
 from api.db.db import get_db
 from api.models.articles import Article
 
@@ -115,6 +116,13 @@ async def post_article(
     db: AsyncSession = Depends(get_db),
 ):
     """新規記事投稿"""
+    author = await user_crud.get_user(db, article_body.author_id)
+    if author is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="著者となるユーザーが見つかりません。",
+        )
+
     article = await article_crud.create_article(db, article_body)
     return _article_to_create_response(article)
 
@@ -135,12 +143,20 @@ async def edit_article(
             detail="パスと本文のarticle_idが一致しません。",
         )
 
-    article = await article_crud.update_article(db, article_id, article_body)
-    if article is None:
+    if await article_crud.get_article(db, article_id) is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="記事が見つかりません。",
         )
+
+    author = await user_crud.get_user(db, article_body.author_id)
+    if author is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="著者となるユーザーが見つかりません。",
+        )
+
+    article = await article_crud.update_article(db, article_id, article_body)
     return _article_to_update_response(article)
 
 

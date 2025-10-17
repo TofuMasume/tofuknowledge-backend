@@ -4,13 +4,23 @@ import starlette.status
 
 @pytest.mark.asyncio
 async def test_article_crud_flow(async_client):
+    user_response = await async_client.post(
+        "/users",
+        json={
+            "user_name": "記事著者",
+            "email": "author@example.com",
+        },
+    )
+    assert user_response.status_code == starlette.status.HTTP_201_CREATED
+    user_id = user_response.json()["user_id"]
+
     # 記事作成
     create_response = await async_client.post(
         "/articles",
         json={
             "title": "テスト記事",
             "summary": "テストサマリー",
-            "author_id": 1,
+            "author_id": user_id,
         },
     )
     assert create_response.status_code == starlette.status.HTTP_201_CREATED
@@ -37,7 +47,7 @@ async def test_article_crud_flow(async_client):
         f"/articles/{article_id}",
         json={
             "article_id": article_id,
-            "author_id": 1,
+            "author_id": user_id,
             "title": "更新後タイトル",
             "summary": "更新後サマリー",
         },
@@ -68,3 +78,45 @@ async def test_article_crud_flow(async_client):
     # 削除済み記事は取得できない
     detail_response = await async_client.get(f"/articles/{article_id}")
     assert detail_response.status_code == starlette.status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_article_update_fails_when_author_missing(async_client):
+    # 著者作成
+    user_response = await async_client.post(
+        "/users",
+        json={
+            "user_name": "記事著者",
+            "email": "author@example.com",
+        },
+    )
+    assert user_response.status_code == starlette.status.HTTP_201_CREATED
+    user_id = user_response.json()["user_id"]
+
+    # 記事作成
+    create_response = await async_client.post(
+        "/articles",
+        json={
+            "title": "テスト記事",
+            "summary": "テストサマリー",
+            "author_id": user_id,
+        },
+    )
+    assert create_response.status_code == starlette.status.HTTP_201_CREATED
+    article_id = create_response.json()["article_id"]
+
+    # 存在しない著者IDで更新
+    update_response = await async_client.put(
+        f"/articles/{article_id}",
+        json={
+            "article_id": article_id,
+            "author_id": user_id + 1,
+            "title": "更新失敗タイトル",
+            "summary": "更新失敗サマリー",
+        },
+    )
+    assert update_response.status_code == starlette.status.HTTP_404_NOT_FOUND
+    assert (
+        update_response.json()["detail"]
+        == "著者となるユーザーが見つかりません。"
+    )
