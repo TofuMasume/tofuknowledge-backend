@@ -35,6 +35,21 @@ class UserCreateResponse(UserCreate):
     created_at: datetime
 
 
+class UserUpdate(BaseModel):
+    """user編集時の入力"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    user_name: str | None = Field(default=None, examples=["New Name"])
+    email: str | None = Field(default=None, examples=["new@example.com"])
+
+
+class UserUpdateResponse(UserDetail):
+    """user編集後のレスポンス"""
+
+    pass
+
+
 # DELETE schema
 class UserDelete(BaseModel):
 

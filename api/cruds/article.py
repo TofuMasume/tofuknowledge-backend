@@ -102,3 +102,16 @@ async def touch_article(db: AsyncSession, article: Article) -> Article:
     await db.commit()
     await db.refresh(article)
     return article
+
+
+async def list_articles_by_author(
+    db: AsyncSession, author_id: int
+) -> Sequence[Article]:
+    """指定した著者のアクティブな記事一覧"""
+    result = await db.execute(
+        select(Article).where(
+            Article.author_id == author_id,
+            Article.deleted_at == ACTIVE_DELETED_AT,
+        )
+    )
+    return result.scalars().all()
