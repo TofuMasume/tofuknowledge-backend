@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+import api.models  # noqa: F401  # モデルのマッパーを登録するために必要
+
 from api.routers import article, tag, user
 
 description = """

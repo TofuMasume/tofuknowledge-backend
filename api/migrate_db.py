@@ -1,8 +1,6 @@
 import os
 
 from dotenv import load_dotenv
-from importlib import import_module
-
 from sqlalchemy import create_engine
 
 from api.db.db import Base
@@ -18,8 +16,7 @@ engine = create_engine(DB_URL, echo=True)
 
 
 def reset_database():
-    import_module("api.models.users")
-    import_module("api.models.articles")
+    import api.models  # noqa: F401  # モデルをmetadataに登録
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
