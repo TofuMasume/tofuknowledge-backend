@@ -16,3 +16,6 @@ class Article(Base):
     summary = Column(Text, nullable=True)
 
     author = relationship("User", back_populates="articles")
+    tags = relationship(
+        "Tag", secondary="article_tags", back_populates="articles"
+    )
