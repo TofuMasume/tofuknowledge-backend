@@ -10,6 +10,6 @@ class Tag(Base):
     tag_id = Column(Integer, primary_key=True, nullable=False, unique=True)
     tag_name = Column(String(64), nullable=False, unique=True)
 
-    article = relationship(
+    articles = relationship(
         "Article", secondary="article_tags", back_populates="tags"
     )
