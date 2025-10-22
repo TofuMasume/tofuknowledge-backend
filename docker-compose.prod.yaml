@@ -1,0 +1,23 @@
+services:
+  tfk-app:
+    build: .
+    volumes:
+      - .:/src
+    ports:
+      - "${APP_PORT:-8000}:8000"
+  tfk-db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER:?DB_USER must be set}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+      MYSQL_DATABASE: ${DB_NAME:-tfk-db}
+      TZ: ${TZ:-Asia/Tokyo}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+
+volumes:
+  mysql_data:
