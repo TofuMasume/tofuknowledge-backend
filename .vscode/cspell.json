@@ -7,6 +7,7 @@
         "autoflush",
         "dockervenv",
         "dotenv",
+        "drivername",
         "fastapi",
         "fuga",
         "hoge",

@@ -5,13 +5,13 @@ services:
       - .dockervenv:/src/.venv
       - .:/src
     ports:
-      - 8000:8000
+      - "${APP_PORT:-8000}:8000"
   tfk-db:
     image: mysql:8.4
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: tfk-db
-      TZ: Asia/Tokyo
+      MYSQL_DATABASE: ${DB_NAME:-tfk-db}
+      TZ: ${TZ:-Asia/Tokyo}
     volumes:
       - mysql_data:/var/lib/mysql
     ports:

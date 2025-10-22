@@ -1,18 +1,26 @@
-import os
-
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 
 from api.db.db import Base
+from api.settings import get_settings
 
-# TODO: 一時的に環境変数使ってるが、この後変える
-load_dotenv()
+settings = get_settings()
 
-# TODO: rootで入ってて権限強すぎるので、この後権限変更する
-PWD = os.environ["MYSQL_ROOT_PASSWORD"]
-DB_URL = f"mysql+pymysql://root:{PWD}@tfk-db:3306/tfk-db?charset=utf8"
+query = {}
+if settings.db_charset:
+    query["charset"] = settings.db_charset
 
-engine = create_engine(DB_URL, echo=True)
+DB_URL = URL.create(
+    drivername="mysql+pymysql",
+    username=settings.db_user,
+    password=settings.db_password or None,
+    host=settings.db_host,
+    port=settings.db_port,
+    database=settings.db_name,
+    query=query,
+)
+
+engine = create_engine(DB_URL, echo=settings.db_echo)
 
 
 def reset_database():

@@ -1,17 +1,26 @@
-import os
-
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# TODO: 一時的に環境変数使ってるが、この後変える
-load_dotenv()
+from api.settings import get_settings
 
-# TODO: rootで入ってて権限強すぎるので、この後権限変更する。
-PWD = os.environ["MYSQL_ROOT_PASSWORD"]
-ASYNC_DB_URL = f"mysql+aiomysql://root:{PWD}@tfk-db:3306/tfk-db?charset=utf8"
+settings = get_settings()
 
-async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
+query = {}
+if settings.db_charset:
+    query["charset"] = settings.db_charset
+
+ASYNC_DB_URL = URL.create(
+    drivername="mysql+aiomysql",
+    username=settings.db_user,
+    password=settings.db_password or None,
+    host=settings.db_host,
+    port=settings.db_port,
+    database=settings.db_name,
+    query=query,
+)
+
+async_engine = create_async_engine(ASYNC_DB_URL, echo=settings.db_echo)
 async_session = sessionmaker(
     expire_on_commit=False,
     bind=async_engine,

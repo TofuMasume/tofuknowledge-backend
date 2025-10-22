@@ -1,7 +1,9 @@
-from pathlib import Path
-
 import pytest
 import starlette.status
+
+from api.settings import get_settings
+
+settings = get_settings()
 
 
 @pytest.mark.asyncio
@@ -53,7 +55,7 @@ async def test_article_file_upload_and_download(async_client):
     )
 
     # 片付け
-    storage_dir = Path(__file__).resolve().parents[1] / "storage" / "articles"
+    storage_dir = settings.article_storage_dir
     stored_file = storage_dir / upload_obj["filename"]
     if stored_file.exists():
         stored_file.unlink()

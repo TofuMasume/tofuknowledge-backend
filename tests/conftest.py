@@ -6,14 +6,18 @@ from sqlalchemy.orm import sessionmaker
 import api.models  # noqa: F401  # モデルをmetadataに登録
 from api.db.db import Base, get_db
 from api.main import app
+from api.settings import get_settings
 
-ASYNC_DB_URL = "sqlite+aiosqlite:///:memory:"
+settings = get_settings()
+ASYNC_DB_URL = settings.test_db_url
 
 
 @pytest_asyncio.fixture
 async def async_client() -> AsyncClient:  # type: ignore
     """FastAPIアプリに対するHTTPクライアント（SQLite in-memory使用）"""
-    async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
+    async_engine = create_async_engine(
+        ASYNC_DB_URL, echo=settings.db_echo
+    )
     async_session = sessionmaker(
         autocommit=False,
         autoflush=False,

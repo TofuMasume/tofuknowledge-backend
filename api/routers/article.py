@@ -22,11 +22,11 @@ from api.db.db import get_db
 from api.models.articles import Article
 from api.models.article_tag import ArticleTag
 from api.models.tags import Tag
+from api.settings import get_settings
 
 router = APIRouter()
-ARTICLE_STORAGE_DIR = (
-    Path(__file__).resolve().parents[2] / "storage" / "articles"
-)
+settings = get_settings()
+ARTICLE_STORAGE_DIR = settings.article_storage_dir
 
 
 def _ensure_storage_dir() -> None:
