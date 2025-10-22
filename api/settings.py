@@ -26,6 +26,7 @@ class Settings:
     db_echo: bool
     article_storage_dir: Path
     test_db_url: str
+    api_key: str
 
 
 @lru_cache(maxsize=1)
@@ -45,6 +46,7 @@ def get_settings() -> Settings:
         db_name=os.getenv("DB_NAME", "tfk-db"),
         db_charset=os.getenv("DB_CHARSET", "utf8"),
         db_echo=_get_bool_env("DB_ECHO", True),
+        api_key=os.getenv("API_KEY", "DontUse"),
         article_storage_dir=Path(
             os.getenv("ARTICLE_STORAGE_DIR", str(default_storage_dir))
         ).expanduser(),
