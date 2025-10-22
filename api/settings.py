@@ -38,6 +38,10 @@ def get_settings() -> Settings:
     if db_password is None:
         db_password = os.getenv("MYSQL_ROOT_PASSWORD", "")
 
+    api_key = os.getenv("API_KEY")
+    if api_key is None or not api_key.strip():
+        raise RuntimeError("API_KEY environment variable must be set.")
+
     return Settings(
         db_user=os.getenv("DB_USER", "root"),
         db_password=db_password,
@@ -46,7 +50,7 @@ def get_settings() -> Settings:
         db_name=os.getenv("DB_NAME", "tfk-db"),
         db_charset=os.getenv("DB_CHARSET", "utf8"),
         db_echo=_get_bool_env("DB_ECHO", True),
-        api_key=os.getenv("API_KEY", "DontUse"),
+        api_key=api_key.strip(),
         article_storage_dir=Path(
             os.getenv("ARTICLE_STORAGE_DIR", str(default_storage_dir))
         ).expanduser(),

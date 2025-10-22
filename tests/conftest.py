@@ -1,3 +1,7 @@
+import os
+
+os.environ.setdefault("API_KEY", "test-secret")
+
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
