@@ -10,6 +10,7 @@ from api.settings import get_settings
 
 settings = get_settings()
 ASYNC_DB_URL = settings.test_db_url
+AUTHORIZATION_HEADER_VALUE = f"Bearer {settings.api_key}"
 
 
 @pytest_asyncio.fixture
@@ -39,6 +40,7 @@ async def async_client() -> AsyncClient:  # type: ignore
     async with AsyncClient(
         transport=transport,
         base_url="http://test",
+        headers={"Authorization": AUTHORIZATION_HEADER_VALUE},
     ) as client:
         yield client
 
