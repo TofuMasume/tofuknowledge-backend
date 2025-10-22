@@ -18,6 +18,8 @@ tmux new -s tfk-prod
 docker compose -f docker-compose.prod.yaml build
 ```
 
+- イメージ内にアプリのコードと依存が含まれるため、ホスト側のファイルはコンテナにマウントされない（変更したら再度 build が必要）。
+
 - 手順3
 
 ```shell

@@ -1,8 +1,6 @@
 services:
   tfk-app:
     build: .
-    volumes:
-      - .:/src
     ports:
       - "${APP_PORT:-8000}:8000"
   tfk-db:
