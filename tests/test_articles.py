@@ -123,6 +123,118 @@ async def test_article_update_fails_when_author_missing(async_client):
 
 
 @pytest.mark.asyncio
+async def test_article_create_fails_when_author_missing(async_client):
+    create_response = await async_client.post(
+        "/articles",
+        json={
+            "title": "著者なし記事",
+            "summary": "著者が存在しないケース",
+            "author_id": 999,
+        },
+    )
+    assert create_response.status_code == (
+        starlette.status.HTTP_404_NOT_FOUND
+    )
+    assert (
+        create_response.json()["detail"]
+        == "著者となるユーザーが見つかりません。"
+    )
+
+
+@pytest.mark.asyncio
+async def test_article_update_fails_when_ids_mismatch(async_client):
+    # 事前に著者と記事を作成
+    user_response = await async_client.post(
+        "/users",
+        json={
+            "user_name": "ID不一致著者",
+            "email": "mismatch-author@example.com",
+        },
+    )
+    assert user_response.status_code == starlette.status.HTTP_201_CREATED
+    user_id = user_response.json()["user_id"]
+
+    article_response = await async_client.post(
+        "/articles",
+        json={
+            "title": "ID不一致記事",
+            "summary": "本文側とパスのIDが違う",
+            "author_id": user_id,
+        },
+    )
+    assert article_response.status_code == starlette.status.HTTP_201_CREATED
+    article_id = article_response.json()["article_id"]
+
+    update_response = await async_client.put(
+        f"/articles/{article_id}",
+        json={
+            "article_id": article_id + 1,
+            "author_id": user_id,
+            "title": "更新失敗タイトル",
+            "summary": "更新失敗サマリー",
+        },
+    )
+    assert update_response.status_code == (
+        starlette.status.HTTP_400_BAD_REQUEST
+    )
+    assert (
+        update_response.json()["detail"]
+        == "パスと本文のarticle_idが一致しません。"
+    )
+
+
+@pytest.mark.asyncio
+async def test_article_update_fails_when_article_missing(async_client):
+    user_response = await async_client.post(
+        "/users",
+        json={
+            "user_name": "存在しない記事編集者",
+            "email": "missing-article@example.com",
+        },
+    )
+    assert user_response.status_code == starlette.status.HTTP_201_CREATED
+    user_id = user_response.json()["user_id"]
+
+    update_response = await async_client.put(
+        "/articles/999",
+        json={
+            "article_id": 999,
+            "author_id": user_id,
+            "title": "存在しない記事タイトル",
+            "summary": "存在しない記事サマリー",
+        },
+    )
+    assert update_response.status_code == (
+        starlette.status.HTTP_404_NOT_FOUND
+    )
+    assert (
+        update_response.json()["detail"] == "記事が見つかりません。"
+    )
+
+
+@pytest.mark.asyncio
+async def test_article_delete_missing_returns_404(async_client):
+    delete_response = await async_client.delete("/articles/999")
+    assert delete_response.status_code == (
+        starlette.status.HTTP_404_NOT_FOUND
+    )
+    assert (
+        delete_response.json()["detail"] == "記事が見つかりません。"
+    )
+
+
+@pytest.mark.asyncio
+async def test_article_tags_listing_missing_article(async_client):
+    list_response = await async_client.get("/articles/999/tags")
+    assert list_response.status_code == (
+        starlette.status.HTTP_404_NOT_FOUND
+    )
+    assert (
+        list_response.json()["detail"] == "記事が見つかりません。"
+    )
+
+
+@pytest.mark.asyncio
 async def test_article_tag_crud_flow(async_client):
     # ユーザーと記事を作成
     user_response = await async_client.post(

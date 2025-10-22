@@ -65,3 +65,91 @@ async def test_article_file_upload_and_download(async_client):
     # 記事削除
     delete_response = await async_client.delete(f"/articles/{article_id}")
     assert delete_response.status_code == starlette.status.HTTP_200_OK
+
+
+@pytest.mark.asyncio
+async def test_article_file_upload_missing_article(async_client):
+    files = {
+        "file": ("missing.md", b"not found", "text/markdown"),
+    }
+    upload_response = await async_client.post(
+        "/articles/999/file", files=files
+    )
+    assert upload_response.status_code == (
+        starlette.status.HTTP_404_NOT_FOUND
+    )
+    assert (
+        upload_response.json()["detail"] == "記事が見つかりません。"
+    )
+
+
+@pytest.mark.asyncio
+async def test_article_file_upload_requires_filename(async_client):
+    user_response = await async_client.post(
+        "/users",
+        json={
+            "user_name": "ファイル名なし著者",
+            "email": "no-filename@example.com",
+        },
+    )
+    assert user_response.status_code == starlette.status.HTTP_201_CREATED
+    user_id = user_response.json()["user_id"]
+
+    article_response = await async_client.post(
+        "/articles",
+        json={
+            "title": "ファイル名なし記事",
+            "summary": "ファイル名未指定の検証",
+            "author_id": user_id,
+        },
+    )
+    assert article_response.status_code == starlette.status.HTTP_201_CREATED
+    article_id = article_response.json()["article_id"]
+
+    files = {
+        "file": ("", b"no filename", "text/plain"),
+    }
+    upload_response = await async_client.post(
+        f"/articles/{article_id}/file", files=files
+    )
+    # FastAPIのバリデーションで弾かれるため422になる
+    assert upload_response.status_code == (
+        starlette.status.HTTP_422_UNPROCESSABLE_CONTENT
+    )
+    detail = upload_response.json()["detail"][0]
+    assert "UploadFile" in detail["msg"]
+
+
+@pytest.mark.asyncio
+async def test_article_file_download_without_upload(async_client):
+    user_response = await async_client.post(
+        "/users",
+        json={
+            "user_name": "未アップロード著者",
+            "email": "no-upload@example.com",
+        },
+    )
+    assert user_response.status_code == starlette.status.HTTP_201_CREATED
+    user_id = user_response.json()["user_id"]
+
+    article_response = await async_client.post(
+        "/articles",
+        json={
+            "title": "ファイル未登録記事",
+            "summary": None,
+            "author_id": user_id,
+        },
+    )
+    assert article_response.status_code == starlette.status.HTTP_201_CREATED
+    article_id = article_response.json()["article_id"]
+
+    download_response = await async_client.get(
+        f"/articles/{article_id}/file"
+    )
+    assert download_response.status_code == (
+        starlette.status.HTTP_404_NOT_FOUND
+    )
+    assert (
+        download_response.json()["detail"]
+        == "記事ファイルが見つかりません。"
+    )

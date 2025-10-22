@@ -81,3 +81,56 @@ async def test_user_crud_flow(async_client):
     assert user_articles_response.status_code == (
         starlette.status.HTTP_404_NOT_FOUND
     )
+
+
+@pytest.mark.asyncio
+async def test_user_update_requires_payload(async_client):
+    create_response = await async_client.post(
+        "/users",
+        json={
+            "user_name": "Payload Tester",
+            "email": "payload@example.com",
+        },
+    )
+    assert create_response.status_code == starlette.status.HTTP_201_CREATED
+    user_id = create_response.json()["user_id"]
+
+    update_response = await async_client.put(
+        f"/users/{user_id}",
+        json={},
+    )
+    assert update_response.status_code == (
+        starlette.status.HTTP_400_BAD_REQUEST
+    )
+    assert (
+        update_response.json()["detail"]
+        == "更新項目を指定してください。"
+    )
+
+
+@pytest.mark.asyncio
+async def test_user_update_missing_user_returns_404(async_client):
+    update_response = await async_client.put(
+        "/users/999",
+        json={
+            "user_name": "Ghost User",
+            "email": "ghost@example.com",
+        },
+    )
+    assert update_response.status_code == (
+        starlette.status.HTTP_404_NOT_FOUND
+    )
+    assert (
+        update_response.json()["detail"] == "ユーザーが見つかりません。"
+    )
+
+
+@pytest.mark.asyncio
+async def test_user_delete_missing_returns_404(async_client):
+    delete_response = await async_client.delete("/users/999")
+    assert delete_response.status_code == (
+        starlette.status.HTTP_404_NOT_FOUND
+    )
+    assert (
+        delete_response.json()["detail"] == "ユーザーが見つかりません。"
+    )
