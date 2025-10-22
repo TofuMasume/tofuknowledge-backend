@@ -1,6 +1,8 @@
 import os
 
 os.environ.setdefault("API_KEY", "test-secret")
+os.environ.setdefault("DB_USER", "test_app")
+os.environ.setdefault("DB_PASSWORD", "test-password")
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient

@@ -34,17 +34,21 @@ def get_settings() -> Settings:
     project_root = Path(__file__).resolve().parent.parent
     default_storage_dir = project_root / "storage" / "articles"
 
-    db_password = os.getenv("DB_PASSWORD")
-    if db_password is None:
-        db_password = os.getenv("MYSQL_ROOT_PASSWORD", "")
-
     api_key = os.getenv("API_KEY")
     if api_key is None or not api_key.strip():
         raise RuntimeError("API_KEY environment variable must be set.")
 
+    db_user = os.getenv("DB_USER")
+    if db_user is None or not db_user.strip():
+        raise RuntimeError("DB_USER environment variable must be set.")
+
+    db_password = os.getenv("DB_PASSWORD")
+    if db_password is None or not db_password.strip():
+        raise RuntimeError("DB_PASSWORD environment variable must be set.")
+
     return Settings(
-        db_user=os.getenv("DB_USER", "root"),
-        db_password=db_password,
+        db_user=db_user.strip(),
+        db_password=db_password.strip(),
         db_host=os.getenv("DB_HOST", "tfk-db"),
         db_port=int(os.getenv("DB_PORT", "3306")),
         db_name=os.getenv("DB_NAME", "tfk-db"),
