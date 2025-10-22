@@ -1,0 +1,33 @@
+{
+    "words": [
+        "aiomysql",
+        "aiosqlite",
+        "ASGI",
+        "asyncio",
+        "autoflush",
+        "dockervenv",
+        "dotenv",
+        "drivername",
+        "fastapi",
+        "fuga",
+        "hoge",
+        "httpx",
+        "Masume",
+        "ondelete",
+        "piyo",
+        "poolclass",
+        "powai",
+        "pymysql",
+        "pyproject",
+        "pytest",
+        "PYTHONBUFFERD",
+        "PYTHONUNBUFFERED",
+        "sessionmaker",
+        "sqlalchemy",
+        "tofuknowledge",
+        "trixie",
+        "uvicorn",
+        "venv",
+        "virtualenvs"
+    ]
+}
