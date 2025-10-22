@@ -11,13 +11,17 @@ from fastapi import (
     responses,
     status,
 )
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.schemas.article as article_schema
+import api.schemas.tag as tag_schema
 from api.cruds import article as article_crud
 from api.cruds import user as user_crud
 from api.db.db import get_db
 from api.models.articles import Article
+from api.models.article_tag import ArticleTag
+from api.models.tags import Tag
 
 router = APIRouter()
 ARTICLE_STORAGE_DIR = (
@@ -81,6 +85,10 @@ def _article_to_update_response(
         summary=article.summary,
         updated_at=article.updated_at,
     )
+
+
+def _tag_to_response(tag: Tag) -> tag_schema.TagRead:
+    return tag_schema.TagRead(tag_id=tag.tag_id, tag_name=tag.tag_name)
 
 
 @router.get("/articles", response_model=List[article_schema.ArticleSummary])
@@ -272,19 +280,110 @@ async def download_article_file(
     )
 
 
-@router.get("/articles/{article_id}/tags", tags=["tags"])
-async def get_article_tag():
+@router.get(
+    "/articles/{article_id}/tags",
+    tags=["tags"],
+    response_model=List[tag_schema.TagRead],
+)
+async def get_article_tag(
+    article_id: int, db: AsyncSession = Depends(get_db)
+):
     """article_idに対して紐づいてるタグを取得"""
-    pass
+    article = await article_crud.get_article(db, article_id)
+    if article is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事が見つかりません。",
+        )
+
+    result = await db.execute(
+        select(Tag)
+        .join(ArticleTag, Tag.tag_id == ArticleTag.tag_id)
+        .where(ArticleTag.article_id == article_id)
+        .order_by(Tag.tag_id)
+    )
+    tags = result.scalars().all()
+    return [_tag_to_response(tag) for tag in tags]
 
 
-@router.post("/articles/{article_id}/tags/{tag_id}", tags=["tags"])
-async def add_article_tag():
+@router.post(
+    "/articles/{article_id}/tags/{tag_id}",
+    tags=["tags"],
+    response_model=tag_schema.TagRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_article_tag(
+    article_id: int, tag_id: int, db: AsyncSession = Depends(get_db)
+):
     """article_idに対して{tag_id}タグ追加"""
-    pass
+    article = await article_crud.get_article(db, article_id)
+    if article is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事が見つかりません。",
+        )
+
+    tag = await db.get(Tag, tag_id)
+    if tag is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="タグが見つかりません。",
+        )
+
+    existing = await db.execute(
+        select(ArticleTag).where(
+            ArticleTag.article_id == article_id,
+            ArticleTag.tag_id == tag_id,
+        )
+    )
+    if existing.scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="タグは既に記事に紐づいています。",
+        )
+
+    response_tag = _tag_to_response(tag)
+    association = ArticleTag(article_id=article_id, tag_id=tag_id)
+    db.add(association)
+    await db.commit()
+    return response_tag
 
 
-@router.delete("/articles/{article_id}/tags/{tag_id}", tags=["tags"])
-async def delete_article_tag():
+@router.delete(
+    "/articles/{article_id}/tags/{tag_id}",
+    tags=["tags"],
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_article_tag(
+    article_id: int, tag_id: int, db: AsyncSession = Depends(get_db)
+):
     """article_idに対して{tag_id}タグ削除"""
-    pass
+    article = await article_crud.get_article(db, article_id)
+    if article is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事が見つかりません。",
+        )
+
+    tag = await db.get(Tag, tag_id)
+    if tag is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="タグが見つかりません。",
+        )
+
+    association_result = await db.execute(
+        select(ArticleTag).where(
+            ArticleTag.article_id == article_id,
+            ArticleTag.tag_id == tag_id,
+        )
+    )
+    association = association_result.scalar_one_or_none()
+    if association is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="記事とタグの紐づけが見つかりません。",
+        )
+
+    await db.delete(association)
+    await db.commit()
